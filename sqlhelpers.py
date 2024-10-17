@@ -13,7 +13,7 @@ class Table():
         self.columns = "(%s)" %",".join(args)
         self.columnsList = args
 
-        #if table does not already exist, create it.
+
         if isnewtable(table_name):
             create_data = ""
             for column in self.columnsList:
