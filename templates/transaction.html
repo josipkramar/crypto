@@ -2,16 +2,28 @@
 
 {% block body %}
 {% include 'includes/_messages.html' %}
-<p>Your current balance is {{ balance }} SUM</p>
-{% from "includes/_formhelpers.html" import render_field %}
-<form method="POST" action="">
-  <div class="from-group">
-    {{render_field(form.username, class_="form-control")}}
+<div class="container mt-5">
+  <div class="card">
+    <div class="card-body">
+
+      <p class="card-text">Vaš trenutno stanje je <strong>{{ balance }}</strong> SUM.</p>
+
+      <form method="POST" action="">
+        <div class="form-group">
+          <label for="username">Korisničko ime</label>
+          {{ form.username(class_="form-control") }}
+        </div>
+
+        <div class="form-group">
+          <label for="amount">Iznos za slanje</label>
+          {{ form.amount(class_="form-control") }}
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block mt-3">Pošalji</button>
+      </form>
+    </div>
   </div>
-  <div class="from-group">
-    {{render_field(form.amount, class_="form-control")}}
-  </div>
-  </br>
-  <p><input type="submit" class="btn btn-primary" value="Send"></p>
-</form>
+</div>
 {% endblock %}
+
+

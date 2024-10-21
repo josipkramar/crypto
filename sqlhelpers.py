@@ -1,71 +1,72 @@
-from app import mysql, session
-from blockchain import Block, Blockchain
+# sqlhelpers.py
 
+from blockchain import Block, Blockchain
 
 class InvalidTransactionException(Exception): pass
 class InsufficientFundsException(Exception): pass
 
-
 class Table():
-
     def __init__(self, table_name, *args):
         self.table = table_name
-        self.columns = "(%s)" %",".join(args)
+        self.columns = "(%s)" % ",".join(args)
         self.columnsList = args
-
-
         if isnewtable(table_name):
             create_data = ""
             for column in self.columnsList:
-                create_data += "%s varchar(100)," %column
-
+                create_data += "%s varchar(100)," % column
+            from app import mysql
             cur = mysql.connection.cursor()
-            cur.execute("CREATE TABLE %s(%s)" %(self.table, create_data[:len(create_data)-1]))
+            cur.execute("CREATE TABLE %s(%s)" % (self.table, create_data[:len(create_data) - 1]))
             cur.close()
 
-
     def getall(self):
+        from app import mysql
         cur = mysql.connection.cursor()
-        result = cur.execute("SELECT * FROM %s" %self.table)
-        data = cur.fetchall(); return data
-
+        result = cur.execute("SELECT * FROM %s" % self.table)
+        data = cur.fetchall()
+        return data
 
     def getone(self, search, value):
-        data = {}; cur = mysql.connection.cursor()
-        result = cur.execute("SELECT * FROM %s WHERE %s = \"%s\"" %(self.table, search, value))
-        if result > 0: data = cur.fetchone()
-        cur.close(); return data
-
+        from app import mysql
+        data = {}
+        cur = mysql.connection.cursor()
+        result = cur.execute("SELECT * FROM %s WHERE %s = \"%s\"" % (self.table, search, value))
+        if result > 0:
+            data = cur.fetchone()
+        cur.close()
+        return data
 
     def deleteone(self, search, value):
+        from app import mysql
         cur = mysql.connection.cursor()
-        cur.execute("DELETE from %s where %s = \"%s\"" %(self.table, search, value))
-        mysql.connection.commit(); cur.close()
-
+        cur.execute("DELETE from %s where %s = \"%s\"" % (self.table, search, value))
+        mysql.connection.commit()
+        cur.close()
 
     def deleteall(self):
         self.drop()
         self.__init__(self.table, *self.columnsList)
 
-
     def drop(self):
+        from app import mysql
         cur = mysql.connection.cursor()
-        cur.execute("DROP TABLE %s" %self.table)
+        cur.execute("DROP TABLE %s" % self.table)
         cur.close()
 
-
     def insert(self, *args):
+        from app import mysql
         data = ""
         for arg in args:
-            data += "\"%s\"," %(arg)
+            data += "\"%s\"," % (arg)
 
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO %s%s VALUES(%s)" %(self.table, self.columns, data[:len(data)-1]))
+        cur.execute("INSERT INTO %s%s VALUES(%s)" % (self.table, self.columns, data[:len(data) - 1]))
         mysql.connection.commit()
         cur.close()
 
 
 def sql_raw(execution):
+    from app import mysql
     cur = mysql.connection.cursor()
     cur.execute(execution)
     mysql.connection.commit()
@@ -73,10 +74,11 @@ def sql_raw(execution):
 
 
 def isnewtable(tableName):
+    from app import mysql
     cur = mysql.connection.cursor()
 
     try:
-        result = cur.execute("SELECT * from %s" %tableName)
+        result = cur.execute("SELECT * from %s" % tableName)
         cur.close()
     except:
         return True
@@ -85,7 +87,6 @@ def isnewtable(tableName):
 
 
 def isnewuser(username):
-
     users = Table("users", "name", "email", "username", "password")
     data = users.getall()
     usernames = [user.get('username') for user in data]
@@ -94,35 +95,32 @@ def isnewuser(username):
 
 
 def send_money(sender, recipient, amount):
+    from app import mysql  # Uvozi se ovdje, kada je potrebno
 
-    try: amount = float(amount)
+    try:
+        amount = float(amount)
     except ValueError:
         raise InvalidTransactionException("Invalid Transaction.")
 
-
     if amount > get_balance(sender) and sender != "BANK":
         raise InsufficientFundsException("Insufficient Funds.")
-
-
     elif sender == recipient or amount <= 0.00:
         raise InvalidTransactionException("Invalid Transaction.")
-
-
     elif isnewuser(recipient):
         raise InvalidTransactionException("User Does Not Exist.")
 
-
     blockchain = get_blockchain()
     number = len(blockchain.chain) + 1
-    data = "%s-->%s-->%s" %(sender, recipient, amount)
+    data = "%s-->%s-->%s" % (sender, recipient, amount)
     blockchain.mine(Block(number, data=data))
     sync_blockchain(blockchain)
 
 
 def get_balance(username):
+    from app import mysql  # Uvozi se ovdje, kada je potrebno
+
     balance = 0.00
     blockchain = get_blockchain()
-
 
     for block in blockchain.chain:
         data = block.data.split("-->")
@@ -143,6 +141,7 @@ def get_blockchain():
 
 
 def sync_blockchain(blockchain):
+    from app import mysql  # Uvozi se ovdje, kada je potrebno
     blockchain_sql = Table("blockchain", "number", "hash", "previous", "data", "nonce")
     blockchain_sql.deleteall()
 

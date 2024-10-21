@@ -112,18 +112,13 @@ def login():
 def transaction():
     form = SendMoneyForm(request.form)
     balance = get_balance(session.get('username'))
-
-
     if request.method == 'POST':
         try:
-
             send_money(session.get('username'), form.username.data, form.amount.data)
             flash("Money Sent!", "success")
         except Exception as e:
             flash(str(e), 'danger')
-
         return redirect(url_for('transaction'))
-
     return render_template('transaction.html', balance=balance, form=form, page='transaction')
 
 
@@ -132,17 +127,13 @@ def transaction():
 def buy():
     form = BuyForm(request.form)
     balance = get_balance(session.get('username'))
-
     if request.method == 'POST':
-
         try:
             send_money("BANK", session.get('username'), form.amount.data)
             flash("Purchase Successful!", "success")
         except Exception as e:
             flash(str(e), 'danger')
-
         return redirect(url_for('dashboard'))
-
     return render_template('buy.html', balance=balance, form=form, page='buy')
 
 
@@ -160,7 +151,8 @@ def dashboard():
     balance = get_balance(session.get('username'))
     blockchain = get_blockchain().chain
     ct = time.strftime("%I:%M %p")
-    return render_template('dashboard.html', balance=balance, session=session, ct=ct, blockchain=blockchain, page='dashboard')
+    return render_template('dashboard.html', balance=balance, session=session,
+                           ct=ct, blockchain=blockchain, page='dashboard')
 
 
 @app.route("/")

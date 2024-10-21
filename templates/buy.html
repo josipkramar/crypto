@@ -1,15 +1,23 @@
-{% extends 'layout.html' %}
+    {% extends 'layout.html' %}
 
-{% block body %}
-{% include 'includes/_messages.html' %}
-<p>Your current balance is {{ balance }} SUM</p>
-{% from "includes/_formhelpers.html" import render_field %}
-<form action="" method="POST">
-  <div class="form-group">
-    <div class="form-label-group">
-      {{render_field(form.amount, class_="form-control")}}
+    {% block body %}
+    {% include 'includes/_messages.html' %}
+    <div class="balance-section" style="text-align: center; margin-bottom: 20px;">
+        <p class="balance-text" style="font-size: 1.5em; color: #333;">
+            Vaš trenutno stanje je <span style="font-weight: bold;">{{ balance }} SUM</span>
+        </p>
     </div>
-  </div>
-  <button type="submit" class="btn btn-primary btn-block">Buy Now</button>
-</form>
-{% endblock %}
+
+    {% from "includes/_formhelpers.html" import render_field %}
+    <form action="" method="POST" class="buy-form" style="max-width: 500px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; border-radius: 8px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
+        <div class="form-group" style="margin-bottom: 20px;">
+            <div class="form-label-group">
+                {{render_field(form.amount, class_="form-control", style="border: 2px solid #007bff; border-radius: 4px; padding: 10px; font-size: 1.2em;")}}
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" style="background-color: #007bff; border-color: #007bff; padding: 10px 15px; font-size: 1.1em; border-radius: 5px; box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);">
+            Kupi sada
+        </button>
+    </form>
+
+    {% endblock %}
